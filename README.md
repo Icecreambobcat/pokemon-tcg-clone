@@ -1,3 +1,8 @@
 # pokemon-tcg-clone
-TOD :
+
+TODO :
+
 - [ ] Implement core
+- [ ] Implement UI
+- [ ] Implement TCG card elements
+- [ ] Implement variable enemies
