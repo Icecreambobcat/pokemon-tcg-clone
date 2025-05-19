@@ -20,6 +20,8 @@ class Config:
         This overrides any default values
         Nonstandard keys are ignored and removed
         """
+
+        # NOTE: This is a standard table merge
         _tmp = {**Config.defaults, **custom}
         for key in _tmp.keys():
             if key not in set(Config.defaults.keys()):
