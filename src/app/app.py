@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Dict
 import pygame as pg
 
-import argparse, sys
+import sys
 
 # implement argparse later
 
@@ -12,10 +12,8 @@ from pygame import (
     time,
 )
 
-from app.conf import Config
-from app.lib import GameState, FS_Daemon
-from states.menu import Menu
-from states.game import Game
+from .conf import Config
+from .lib import GameState, FS_Daemon
 
 
 class App:
@@ -28,6 +26,11 @@ class App:
     config: Config
 
     def __init__(self, args: Dict[str, str | bool | int] = {}) -> None:
+        # NOTE: Conditional imports are less expensive
+
+        from states.menu import Menu
+        from states.game import Game
+
         self.config = Config(args)
         if self.config.config["debug"]:
             print(self.config.config)
@@ -57,20 +60,11 @@ class App:
         sys.exit(0)
 
 
-def main() -> None:
-    # init the app & do argparse cringe
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--width", "-w", type=int, help="Window width")
-    parser.add_argument("--height", "-h", type=int, help="Window height")
-    parser.add_argument("--fps", "-f", type=int, help="Frames per second")
-    parser.add_argument("--debug", "-d", action="store_true", help="Debug mode")
-    parser.add_argument("--vsync", "-s", action="store_true", help="Vsync")
-    parser.add_argument(
-        "--title", "-t", type=str, action="store", help="Change the title (str input)"
-    )
-    args: Dict[str, str | bool | int] = vars(parser.parse_args())
+def main(config: Dict[str, str | bool | int] = {}) -> None:
+    # NOTE: The argparse implementation probably won't work too well with this architecture;
+    # configs will be passed directly by the calling script.
 
-    app = App(args)
+    app = App(config)
     quit: bool = False
     while True:
         match app.state:
@@ -95,7 +89,3 @@ def main() -> None:
             break
 
     app.quit("Quit from main loop")
-
-
-if __name__ == "__main__":
-    main()

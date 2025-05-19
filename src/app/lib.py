@@ -1,12 +1,13 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import pathlib
 from typing import Dict, List, Tuple
 import pygame as pg
 from pygame import Font, Surface, image, sprite, time
 from pathlib import Path
 import re
 
-from app.conf import Config
+from .conf import Config
 
 
 class GameState(ABC):
@@ -119,7 +120,9 @@ class FS_Daemon:
     root: Path
 
     def __init__(self) -> None:
-        self.root = Path("../..")
+        # HACK: Pray that this works. This is under the assumption that the project structure remains identical.
+        # Regexing here allows for easy expandability w/o hardcoded paths (minus the root)
+        self.root = Path(Path.cwd(), "..")
 
     @property
     def fonts(self) -> Dict[str, List[Font]]:
@@ -131,9 +134,7 @@ class FS_Daemon:
         for file in files:
             name = re.search(r"(.+)\.ttf$", file.name)
             if name:
-                out[name.group(1)] = list(
-                    map(lambda x: Font(file, 24 * x), range(1, 5))
-                )
+                out[name.group(1)] = list(map(lambda x: Font(file, 8 * x), range(1, 5)))
 
         return out
 
