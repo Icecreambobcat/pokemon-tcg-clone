@@ -11,6 +11,8 @@ class Menu(GameState):
     def __init__(
         self, clock: time.Clock, fsd: FS_Daemon, config: Config, screen: Surface
     ) -> None:
+        from app.lib import Helpers
+
         # private
         self._clock = clock
         self._fsd = fsd
@@ -32,8 +34,9 @@ class Menu(GameState):
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
 
-        # TODO: Potentially revise the texts implementation to getters & setters
-        self.text_add_helper(
+        Helpers.text_add_helper(
+            self.texts,
+            (int(self.config.config["width"]), int(self.config.config["height"])),
             (
                 (
                     self.font2.render(
@@ -51,38 +54,14 @@ class Menu(GameState):
                     "flavour",
                     (50, 30),
                 ),
-            )
+            ),
         )
-
-    def text_add_helper(
-        self,
-        sequences: Tuple[Tuple[Surface, str, Tuple[int, int]], ...],
-    ) -> None:
-        """
-        Input a sequence of (<font_surface>, "name", (x, y)) tuples.
-        x and y are offset the center of the text rect by screen size percent from (0, 0)
-        """
-
-        # NOTE: These are only called once and not updated dynamically
-        for i in sequences:
-            pos = (
-                int(
-                    i[2][0] / 100 * int(self.config.config["width"])
-                    - i[0].get_width() / 2
-                ),
-                int(
-                    i[2][1] / 100 * int(self.config.config["height"])
-                    - i[0].get_height() / 2
-                ),
-            )
-            self.texts[i[1]] = (i[0], pos)
 
     def loop(self) -> bool:
         gamestate = True
         _quit = False
         while gamestate:
             self.render()
-            display.flip()
 
             # NOTE: Is there a better implementation for flow control?
             for event in pg.event.get():
@@ -113,6 +92,7 @@ class Menu(GameState):
                 (self.texts["space"][0], self.texts["space"][1]),
             )
         )
+        display.flip()
 
     @property
     def clock(self) -> time.Clock:

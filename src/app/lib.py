@@ -1,8 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-import pathlib
 from typing import Dict, List, Tuple
-import pygame as pg
 from pygame import Font, Surface, image, sprite, time
 from pathlib import Path
 import re
@@ -84,6 +82,7 @@ class Entity(ABC):
         """
         Different cards (abilities) are subclassed from here
         Behaviour of different types should be defined purely within subclasses
+        This is only utilised for player interaction
         """
 
         @property
@@ -115,6 +114,7 @@ class Entity(ABC):
 class FS_Daemon:
     """
     Handler for asset access
+    Capability for dynamic updating possible but not utilised
     """
 
     root: Path
@@ -124,6 +124,8 @@ class FS_Daemon:
         # Regexing here allows for easy expandability w/o hardcoded paths (minus the root)
         self.root = Path(Path.cwd(), "..")
 
+    # PERF: Calling this every time we want to load something is expensive
+    # Potentially look for less computationally intensive solutions
     @property
     def fonts(self) -> Dict[str, List[Font]]:
         """
@@ -152,3 +154,24 @@ class FS_Daemon:
                 out[name.group(1)] = image.load(file)
 
         return out
+
+
+class Helpers:
+    @staticmethod
+    def text_add_helper(
+        target: Dict[str, Tuple[Surface, Tuple[int, int]]],
+        dimensions: Tuple[int, int],
+        sequences: Tuple[Tuple[Surface, str, Tuple[int, int]], ...],
+    ) -> None:
+        """
+        Input a sequence of (<font_surface>, "name", (x, y)) tuples.
+        x and y are offset the center of the text rect by screen size percent from (0, 0)
+        """
+
+        # NOTE: These are only called once and not updated dynamically
+        for i in sequences:
+            pos = (
+                int(i[2][0] / 100 * dimensions[0] - i[0].get_width() / 2),
+                int(i[2][1] / 100 * dimensions[1] - i[0].get_height() / 2),
+            )
+            target[i[1]] = (i[0], pos)
