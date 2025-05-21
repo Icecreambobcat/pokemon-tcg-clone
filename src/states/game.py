@@ -1,9 +1,10 @@
 from __future__ import annotations, with_statement
+from typing import Dict, Tuple
 import pygame as pg
-from pygame import Surface, time
+from pygame import Surface, display, sprite, time, transform
 
 from app.conf import Config
-from app.lib import FS_Daemon, GameState
+from app.lib import Entity, FS_Daemon, GameState
 
 
 class Game(GameState):
@@ -11,6 +12,7 @@ class Game(GameState):
     def __init__(
         self, clock: time.Clock, fsd: FS_Daemon, config: Config, screen: Surface
     ) -> None:
+        from app.lib import Helpers
         self._clock = clock
         self._fsd = fsd
         self._conf = config
