@@ -2,7 +2,9 @@
 
 TODO :
 
-- [ ] Implement core
-- [ ] Implement UI
-- [ ] Implement TCG card elements
-- [ ] Implement variable enemies
+- [x] Implement menu
+- [ ] Implement game
+    - [ ] Implement combat logic
+    - [ ] Implement cards
+    - [ ] Implement overlay (visuals)
+- [ ] Merge into final app
