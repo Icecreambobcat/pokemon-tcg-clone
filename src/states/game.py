@@ -229,7 +229,34 @@ class Game(GameState):
             pass
 
     class Overlay(Object):
+        _pos: Tuple[int, int]
+        _size: Tuple[int, int]
+        _tex: Surface
+
         def __init__(
             self, position: Tuple[int, int], size: Tuple[int, int], tex: Surface
         ) -> None:
-            pass
+            self._pos = position
+            self._size = size
+            self._tex = tex
+
+        @property
+        def position(self) -> Tuple[int, int]:
+            return self._pos
+
+        @position.setter
+        def position(self, pos: Tuple[int, int]) -> None:
+            self._pos = pos
+
+        @property
+        def tex(self) -> Surface:
+            return self._tex
+
+        @property
+        def size(self) -> Tuple[int, int]:
+            return self._size
+
+        @size.setter
+        def size(self, size: Tuple[int, int]) -> None:
+            self._size = size
+
