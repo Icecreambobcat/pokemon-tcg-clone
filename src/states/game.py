@@ -27,6 +27,12 @@ class Game(GameState):
             (int(self.config.config["width"]), int(self.config.config["height"])),
         )
 
+        self.alpha = Surface(
+            (int(self.config.config["width"]), int(self.config.config["height"]))
+        )
+        self.alpha.fill((0, 0, 0))
+        self.alpha.set_alpha(160)
+
         # sect: fonts
         self.font4 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][3]
         self.font3 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][2]
@@ -66,7 +72,14 @@ class Game(GameState):
     def render(self) -> None:
         # NOTE: This much should all be obvious. The overlay needs more work
         self.screen.fill((0, 0, 0))
-        self.screen.blit(self.bg, (0, 0))
+        self.screen.blits(
+            (
+                (self.bg, (0, 0)),
+                (self.alpha, (0, 0)),
+                (self.player.sprite.tex, self.player.sprite.position),
+                (self.enemy.sprite.tex, self.enemy.sprite.position),
+            )
+        )
         # TODO: Implement logic control here by checking self.status (dict)
         display.flip()
 

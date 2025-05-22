@@ -28,6 +28,12 @@ class Menu(GameState):
             (int(self.config.config["width"]), int(self.config.config["height"])),
         )
 
+        self.alpha = Surface(
+            (int(self.config.config["width"]), int(self.config.config["height"]))
+        )
+        self.alpha.fill((0, 0, 0))
+        self.alpha.set_alpha(160)
+
         # sect: fonts
         self.font4 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][3]
         self.font3 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][2]
@@ -97,12 +103,11 @@ class Menu(GameState):
         return True
 
     def render(self) -> None:
-        # TODO: Either edit the image & darken it or add an alpha darken layer
-
         self.screen.fill((0, 0, 0))
         self.screen.blits(
             (
                 (self.bg, (0, 0)),
+                (self.alpha, (0, 0)),
                 (self.texts["flavour"][0], self.texts["flavour"][1]),
                 (self.texts["space"][0], self.texts["space"][1]),
             )
