@@ -6,7 +6,7 @@ from app.app import main
 if __name__ == "__main__":
     main(
         {
-            "debug": False,
+            "debug": True,
             "title": "Some pokemon ripoff...",
         }
     )
