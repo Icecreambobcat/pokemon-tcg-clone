@@ -57,7 +57,7 @@ class GameState(ABC):
         pass
 
 
-class Object(ABC, sprite.Sprite):
+class SpriteObject(ABC, sprite.Sprite):
     """
     All onscreen objects inherit from this
     """
@@ -160,7 +160,7 @@ class Entity(ABC):
 
     @property
     @abstractmethod
-    def sprite(self) -> Object:
+    def sprite(self) -> SpriteObject:
         pass
 
 

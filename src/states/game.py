@@ -4,7 +4,7 @@ import pygame as pg
 from pygame import Surface, display, sprite, time, transform
 
 from app.conf import Config
-from app.lib import Entity, FS_Daemon, GameState, Object
+from app.lib import Entity, FS_Daemon, GameState, SpriteObject
 
 
 class Game(GameState):
@@ -72,6 +72,7 @@ class Game(GameState):
 
         # sect: other control functions
         self.status: Dict[str, str]
+        self.elements: Dict[str, SpriteObject]
 
         if self.config.config["debug"]:
             print("Initialising game object")
@@ -150,7 +151,7 @@ class Game(GameState):
         _sp: PlayerSprite
         _cards: List[Entity.Player.Card]
 
-        class PlayerSprite(Object):
+        class PlayerSprite(SpriteObject):
             _pos: Tuple[int, int]
             _tex: Surface
 
@@ -214,7 +215,7 @@ class Game(GameState):
         _sp: EnemySprite
         _attacks: List[Entity.Enemy.Attack]
 
-        class EnemySprite(Object):
+        class EnemySprite(SpriteObject):
             _pos: Tuple[int, int]
             _tex: Surface
 
@@ -274,9 +275,11 @@ class Game(GameState):
 
         # TODO: implement enermyturn handling
         def enemyturn(self) -> None:
+            # do the same thing as the player implementation
+            # switch to a set of dedicated ui elements
             pass
 
-    class Overlay(Object):
+    class Overlay(SpriteObject):
         _pos: Tuple[int, int]
         _size: Tuple[int, int]
         _tex: Surface
