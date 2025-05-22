@@ -50,6 +50,9 @@ class App:
         }
         self.state = "menu"
 
+        if self.config.config["debug"]:
+            print("Initialized app")
+            print(self.__dict__)
         # blah other init stuff
 
     @staticmethod

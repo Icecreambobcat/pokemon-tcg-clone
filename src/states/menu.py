@@ -19,6 +19,9 @@ class Menu(GameState):
         self._conf = config
         self._scr = screen
 
+        if self.config.config["debug"]:
+            print("Loaded private menu vars")
+
         # sect: images
         self.bg = transform.scale(
             self.fs_daemon.images["menubg"],
@@ -30,6 +33,9 @@ class Menu(GameState):
         self.font3 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][2]
         self.font2 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][1]
         self.font1 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][0]
+
+        if self.config.config["debug"]:
+            print("Loaded fonts and bg (menu)")
 
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
@@ -57,7 +63,14 @@ class Menu(GameState):
             ),
         )
 
+        if self.config.config["debug"]:
+            print("Loaded text & positions (menu)")
+            print("Initialising menu")
+            print(self.__dict__)
+
     def loop(self) -> bool:
+        if self.config.config["debug"]:
+            print("Entering loop")
         gamestate = True
         _quit = False
         while gamestate:
@@ -65,6 +78,8 @@ class Menu(GameState):
 
             # NOTE: Is there a better implementation for flow control?
             for event in pg.event.get():
+                if self.config.config["debug"]:
+                    print(event)
                 if event.type == pg.QUIT:
                     _quit = True
                     gamestate = False
@@ -93,6 +108,9 @@ class Menu(GameState):
             )
         )
         display.flip()
+
+        if self.config.config["debug"]:
+            print("Rendering menu")
 
     @property
     def clock(self) -> time.Clock:
