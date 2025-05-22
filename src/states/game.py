@@ -1,5 +1,6 @@
 from __future__ import annotations, with_statement
 from typing import Dict, List, Tuple
+import asyncio
 from random import choice, randint, uniform, choices
 import pygame as pg
 from pygame import Surface, display, draw, sprite, time, transform
@@ -62,50 +63,50 @@ class Game(GameState):
         self.player.cards = [
             self.Player.Card(
                 "Social anxiety crashout!!!!!",
-                "Deal 100 damage to the enemy and 50 damage to yourself, and heal for 100 hp. Can critically strike for double damage and massive healing.",
+                "Deal 400 damage to the enemy and 50 damage to yourself, and heal for 100 hp. Can critically strike for double damage and massive healing.",
                 "finisher",
                 15,
-                100,
+                400,
                 0.5,
                 50,
                 True,
             ),
             self.player.Card(
                 "Sorry for existing!!!",
-                "Deal 100 damage and heal for 50 hp. Can critically strike for 50% increased effectiveness.",
+                "Deal 200 damage and heal for 50 hp. Can critically strike for 50% increased effectiveness.",
                 "amplify",
                 10,
-                100,
+                200,
                 0.3,
                 50,
                 False,
             ),
             self.player.Card(
                 "Stage fright",
-                "Deals 80 damage. The next card you play capable of critically striking is guaranteed to do so. This effect does not stack. Cannot critically strike.",
+                "Deals 120 damage. The next card you play capable of critically striking is guaranteed to do so. This effect does not stack. Cannot critically strike.",
                 "guaranteecrit",
                 8,
-                80,
+                120,
                 0,
                 0,
                 True,
             ),
             self.player.Card(
                 "Don't talk to me!",
-                "Restores 60 hp. Can critically strike for an additional 120 hp healing.",
+                "Restores 150 hp. Can critically strike for an additional 300 hp healing.",
                 "restore",
                 6,
                 0,
                 0.2,
-                60,
+                150,
                 False,
             ),
             self.player.Card(
                 "Cardboard guitar",
-                "Deals 40 damage. Can critically strike for double damage.",
+                "Deals 120 damage. Can critically strike for double damage.",
                 "damage",
                 4,
-                40,
+                120,
                 0.3,
                 0,
                 False,
@@ -114,7 +115,7 @@ class Game(GameState):
                 "G string",
                 "Draw another card instantly.",
                 "drawcard",
-                2,
+                1,
                 0,
                 0,
                 0,
@@ -171,7 +172,7 @@ class Game(GameState):
                 "Pika slash",
                 12,
                 150,
-            )
+            ),
         ]
 
         Helpers.text_add_helper(
@@ -202,6 +203,13 @@ class Game(GameState):
                     self.font2.render("Enemy mana", True, (255, 255, 255)),
                     "enemymananame",
                     (70, 40),
+                ),
+                (
+                    self.font4.render(
+                        "Press 'R' to restart\nPress ESC to quit", True, (255, 255, 255)
+                    ),
+                    "gameover",
+                    (50, 50),
                 ),
             ),
         )
@@ -248,16 +256,17 @@ class Game(GameState):
     def render(self) -> None:
         # NOTE: This much should all be obvious. The overlay needs more work
         self.screen.fill((0, 0, 0))
-        self.screen.blits(
-            (
-                (self.bg, (0, 0)),
-                (self.alpha, (0, 0)),
-                (self.player.sprite.tex, self.player.sprite.position),
-                (self.enemy.sprite.tex, self.enemy.sprite.position),
-            )
-        )
 
         def commons() -> None:
+            self.screen.blits(
+                (
+                    (self.bg, (0, 0)),
+                    (self.alpha, (0, 0)),
+                    (self.player.sprite.tex, self.player.sprite.position),
+                    (self.enemy.sprite.tex, self.enemy.sprite.position),
+                )
+            )
+
             draw.rect(
                 self.screen,
                 (0, 0, 0),
@@ -394,9 +403,6 @@ class Game(GameState):
                     self.elements[element].tex, self.elements[element].position
                 )
 
-        # TODO: Implement logic control here by checking self.status (dict)
-        # blit this blit that depending on state
-        # only render buttons and allow interactions if & only if status matches
         match self.status:
             case "playerturn":
                 commons()
@@ -441,16 +447,30 @@ class Game(GameState):
 
             case "enemyturn":
                 commons()
-                    # animate
+                # animate
                 for event in pg.event.get(self.enemyattackevent):
-                    pass
+                    text = self.font2.render(
+                        f"{self.enemy.name} attacks with {event.dict["attack"]}",
+                        True,
+                        (200, 150, 200),
+                        wraplength=int(int(self.config.config["width"]) * 0.5),
+                    )
 
+                    self.screen.blit(
+                        text,
+                        (
+                            int(self.config.config["width"]) * 0.55
+                            - text.get_width() // 2,
+                            int(self.config.config["height"]) * 0.6
+                            - text.get_height() // 2,
+                        ),
+                    )
 
-            case "animating":
-                commons()
             case "gameover":
-                # obviously
-                pass
+                self.screen.fill((0, 0, 0))
+                for text, surf in self.texts.items():
+                    if "gameover" in text:
+                        self.screen.blit(surf[0], surf[1])
         display.flip()
 
         if self.config.config["debug"]:
@@ -458,7 +478,14 @@ class Game(GameState):
             print(time.get_ticks())
 
     def process_behaviour(self) -> None:
-        # TODO: Handle player input here + call class logic
+        if self.player.health == 0:
+            self.status = "gameover"
+            pg.event.post(pg.event.Event(self.switchevent))
+
+        if self.enemy.health == 0:
+            self.status = "gameover"
+            pg.event.post(pg.event.Event(self.switchevent))
+
         def handle_special(num: int) -> None:
             match num:
                 case 1:
@@ -468,13 +495,29 @@ class Game(GameState):
                 case 3:
                     pass
 
-        if self.player.health == 0:
-            self.status = "gameover"
+        def enemy_turn() -> None:
+            while True:
+                attack = choice(self.enemy.attacks)
+                if attack.cost > self.enemy.mana:
+                    break
+                self.enemy.mana = self.enemy.mana - attack.cost
+                self.player.health = self.player.health - attack.damage
+                pg.event.post(
+                    pg.event.Event(
+                        self.enemyattackevent,
+                        attack=attack.name,
+                        cost=attack.cost,
+                        damage=attack.damage,
+                    )
+                )
+                self.render()
+                pg.time.wait(1000)
+                if self.config.config["debug"]:
+                    print(attack.name, attack.cost, attack.damage)
+                    print(time.get_ticks())
+            self.status = "playerturn"
             pg.event.post(pg.event.Event(self.switchevent))
-
-        if self.enemy.health == 0:
-            self.status = "gameover"
-            pg.event.post(pg.event.Event(self.switchevent))
+            pg.time.wait(1000)
 
         for event in pg.event.get():
             if self.config.config["debug"]:
@@ -491,10 +534,9 @@ class Game(GameState):
                         self.player.currentdeck = choices(self.player.cards, k=4)
                     case "enemyturn":
                         self.enemy.mana = self.enemy.mana + randint(2, 5)
-                    case "animating":
-                        pass
+                        enemy_turn()
                     case "gameover":
-                        pass
+                        self.screen.fill((0, 0, 0))
 
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
@@ -523,6 +565,7 @@ class Game(GameState):
                                 handle_special(play["specialeffect"])
                             else:
                                 # flash the mana animation
+                                # Annnnnnnd i didn't have time to build this
                                 pass
 
                     elif event.key == pg.K_j:
@@ -604,7 +647,9 @@ class Game(GameState):
                         self.status = "enemyturn"
                         pg.event.post(pg.event.Event(self.switchevent))
 
-            # continue to handle...
+                elif self.status == "gameover":
+                    if event.key == pg.K_r:
+                        self._restart = True
 
     def initialise_gamestate(self) -> None:
         self._restart = False
