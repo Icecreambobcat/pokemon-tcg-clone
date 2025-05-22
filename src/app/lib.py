@@ -117,7 +117,6 @@ class Entity(ABC):
         def cards(self) -> List[Card]:
             pass
 
-    # TODO: add actual abstractions for this
     class Enemy(ABC):
         class Attack(ABC):
             @property

@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 import pygame as pg
 from pygame import Surface, display, sprite, time, transform
 
+from app.app import App
 from app.conf import Config
 from app.lib import Entity, FS_Daemon, GameState, SpriteObject
 
@@ -19,6 +20,9 @@ class Game(GameState):
         self._fsd = fsd
         self._conf = config
         self._scr = screen
+        # NOTE: these two are separated to differentiate quitting the app and quitting to the menu
+        self._quit: bool = False
+        self._restart: bool = False
 
         if self.config.config["debug"]:
             print("Loaded private game vars")
@@ -26,6 +30,7 @@ class Game(GameState):
 
         # sect: images
         # TODO: find other assets for "game" gamestate
+        # usable w/o assets, just have to use rects and surfaces
 
         self.bg = transform.scale(
             self.fs_daemon.images["gamebg"],
@@ -67,17 +72,36 @@ class Game(GameState):
 
         # sect: init player & enemy
 
-        self.player = self.Player(transform.scale(self.fs_daemon.images["playertex"], (100, 100)))
-        self.enemy = self.Enemy(transform.scale(self.fs_daemon.images["enemytex"], (100, 100)), 500, "placeholder")
+        self.player = self.Player(
+            transform.scale(self.fs_daemon.images["playertex"], (300, 300))
+        )
+        self.enemy = self.Enemy(
+            transform.scale(self.fs_daemon.images["enemytex"], (150, 150)),
+            500,
+            "placeholder",
+        )
 
         # for now...
+        # TODO: implement optional rendering & animations
         self.player.sprite.position = (
-            int(int(self.config.config["width"]) * 0.3 - self.player.sprite.tex.get_width() / 2),
-            int(int(self.config.config["height"]) * 0.8 - self.player.sprite.tex.get_height() / 2),
+            int(
+                int(self.config.config["width"]) * 0.275
+                - self.player.sprite.tex.get_width() / 2
+            ),
+            int(
+                int(self.config.config["height"]) * 0.7
+                - self.player.sprite.tex.get_height() / 2
+            ),
         )
         self.enemy.sprite.position = (
-            int(int(self.config.config["width"]) * 0.7 - self.enemy.sprite.tex.get_width() / 2),
-            int(int(self.config.config["height"]) * 0.3 - self.enemy.sprite.tex.get_height() / 2),
+            int(
+                int(self.config.config["width"]) * 0.7
+                - self.enemy.sprite.tex.get_width() / 2
+            ),
+            int(
+                int(self.config.config["height"]) * 0.265
+                - self.enemy.sprite.tex.get_height() / 2
+            ),
         )
 
         # sect: other control functions
@@ -130,6 +154,8 @@ class Game(GameState):
                 self.elements[element].tex, self.elements[element].position
             )
         # TODO: Implement logic control here by checking self.status (dict)
+        # blit this blit that depending on state
+        # only render buttons and allow interactions if & only if status matches
         match self.status:
             case "playerturn":
                 pass
@@ -160,7 +186,10 @@ class Game(GameState):
 
     def initialise_gamestate(self) -> None:
         # TODO: Reset player health & groups
+        self._restart = False
         self.status = "playerturn"
+        self.player.health = self.player.maxhp
+        self.enemy.health = self.enemy.maxhp
 
         if self.config.config["debug"]:
             print("Initialising gamestate")
