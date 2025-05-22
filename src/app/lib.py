@@ -176,6 +176,7 @@ class FS_Daemon:
         # HACK: Pray that this works. This is under the assumption that the project structure remains identical.
         # Regexing here allows for easy expandability w/o hardcoded paths (minus the root path)
         self.root = Path(Path.cwd(), "..")
+        self.root = Path(__file__, "../../../").resolve()
 
     # PERF: Calling this every time we want to load something is expensive
     # Potentially look for less computationally intensive solutions
