@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
-from pygame import Font, Surface, image, sprite, time
+from pygame import Font, Surface, image, sprite, time, rect, draw
 from pathlib import Path
 import re
 

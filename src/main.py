@@ -4,4 +4,9 @@ from app.app import main
 # Any desired configuration can be passed through this function in the format specified by the conf file
 
 if __name__ == "__main__":
-    main()
+    main(
+        {
+            "debug": False,
+            "title": "Some pokemon ripoff...",
+        }
+    )
