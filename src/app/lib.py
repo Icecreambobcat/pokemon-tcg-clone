@@ -103,14 +103,55 @@ class Entity(ABC):
             def type(self) -> str:
                 pass
 
+            @property
+            @abstractmethod
+            def cost(self) -> int:
+                pass
+
+            @abstractmethod
+            def use(self) -> None:
+                pass
+
         @property
         @abstractmethod
-        def cards(self) -> Dict[str, Card]:
+        def cards(self) -> List[Card]:
+            pass
+
+        @abstractmethod
+        def playerturn(self) -> None:
             pass
 
     # TODO: add actual abstractions for this
     class Enemy(ABC):
-        pass
+        class Attack(ABC):
+            @property
+            @abstractmethod
+            def name(self) -> str:
+                pass
+
+            @property
+            @abstractmethod
+            def damage(self) -> int:
+                pass
+
+            @property
+            @abstractmethod
+            def cost(self) -> int:
+                pass
+
+        @property
+        @abstractmethod
+        def attacks(self) -> List[Attack]:
+            pass
+
+        @property
+        @abstractmethod
+        def name(self) -> str:
+            pass
+
+        @abstractmethod
+        def enemyturn(self) -> None:
+            pass
 
     @property
     @abstractmethod
@@ -121,6 +162,7 @@ class Entity(ABC):
     @abstractmethod
     def sprite(self) -> Object:
         pass
+
 
 class FS_Daemon:
     """
