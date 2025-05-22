@@ -104,6 +104,15 @@ class Game(GameState):
             )
         )
         # TODO: Implement logic control here by checking self.status (dict)
+        match self.status:
+            case "playerturn":
+                pass
+            case "enemyturn":
+                pass
+            case "animating":
+                pass
+            case "gameover":
+                pass
         display.flip()
 
         if self.config.config["debug"]:
@@ -118,10 +127,7 @@ class Game(GameState):
 
     def initialise_gamestate(self) -> None:
         # TODO: Reset player health & groups
-        self.status = {
-            "state": "intro",
-            "turn": "player",
-        }
+        self.status = "playerturn"
 
         if self.config.config["debug"]:
             print("Initialising gamestate")
@@ -206,10 +212,6 @@ class Game(GameState):
         def cards(self) -> List[Entity.Player.Card]:
             return self._cards
 
-        # TODO: Implement behaviour here
-        def playerturn(self) -> None:
-            pass
-
     class Enemy(Entity.Enemy):
         _hp: int
         _sp: EnemySprite
@@ -272,12 +274,6 @@ class Game(GameState):
         @property
         def attacks(self) -> List[Entity.Enemy.Attack]:
             return self._attacks
-
-        # TODO: implement enermyturn handling
-        def enemyturn(self) -> None:
-            # do the same thing as the player implementation
-            # switch to a set of dedicated ui elements
-            pass
 
     class Overlay(SpriteObject):
         _pos: Tuple[int, int]

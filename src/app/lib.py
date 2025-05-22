@@ -117,10 +117,6 @@ class Entity(ABC):
         def cards(self) -> List[Card]:
             pass
 
-        @abstractmethod
-        def playerturn(self) -> None:
-            pass
-
     # TODO: add actual abstractions for this
     class Enemy(ABC):
         class Attack(ABC):
@@ -147,10 +143,6 @@ class Entity(ABC):
         @property
         @abstractmethod
         def name(self) -> str:
-            pass
-
-        @abstractmethod
-        def enemyturn(self) -> None:
             pass
 
     @property
