@@ -35,7 +35,7 @@ class Game(GameState):
             (int(self.config.config["width"]), int(self.config.config["height"]))
         )
         self.alpha.fill((0, 0, 0))
-        self.alpha.set_alpha(160)
+        self.alpha.set_alpha(120)
 
         # sect: fonts
         self.font4 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][3]
@@ -44,7 +44,7 @@ class Game(GameState):
         self.font1 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][0]
 
         if self.config.config["debug"]:
-            print("Loaded fonts and bg (menu)")
+            print("Loaded fonts and bg (game)")
 
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
@@ -62,17 +62,24 @@ class Game(GameState):
 
         # TODO: add some for [match name] in fsd[type]... loop to load everything in 1 go
 
-        # sect: init player
-        # TODO: implement missing methods
-        # Implement textures
-        # implement naming
+        # sect: init player & enemy
 
-        self.player = self.Player(self.fs_daemon.images["playertex"])
-        self.enemy = self.Enemy(self.fs_daemon.images["enemytex"], 500, "placeholder")
+        self.player = self.Player(transform.scale(self.fs_daemon.images["playertex"], (100, 100)))
+        self.enemy = self.Enemy(transform.scale(self.fs_daemon.images["enemytex"], (100, 100)), 500, "placeholder")
+
+        # for now...
+        self.player.sprite.position = (
+            int(int(self.config.config["width"]) * 0.3 - self.player.sprite.tex.get_width() / 2),
+            int(int(self.config.config["height"]) * 0.8 - self.player.sprite.tex.get_height() / 2),
+        )
+        self.enemy.sprite.position = (
+            int(int(self.config.config["width"]) * 0.7 - self.enemy.sprite.tex.get_width() / 2),
+            int(int(self.config.config["height"]) * 0.3 - self.enemy.sprite.tex.get_height() / 2),
+        )
 
         # sect: other control functions
-        self.status: Dict[str, str]
-        self.elements: Dict[str, SpriteObject]
+        self.status: str
+        self.elements: Dict[str, SpriteObject] = {}
 
         if self.config.config["debug"]:
             print("Initialising game object")
@@ -103,6 +110,12 @@ class Game(GameState):
                 (self.enemy.sprite.tex, self.enemy.sprite.position),
             )
         )
+        for text in self.texts:
+            self.screen.blit(self.texts[text][0], self.texts[text][1])
+        for element in self.elements:
+            self.screen.blit(
+                self.elements[element].tex, self.elements[element].position
+            )
         # TODO: Implement logic control here by checking self.status (dict)
         match self.status:
             case "playerturn":
