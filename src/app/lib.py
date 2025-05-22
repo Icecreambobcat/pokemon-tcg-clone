@@ -59,7 +59,7 @@ class GameState(ABC):
 
 class Object(ABC, sprite.Sprite):
     """
-    But... why would you do this when it's a turn based game???
+    All onscreen objects inherit from this
     """
 
     @property
@@ -76,29 +76,41 @@ class Object(ABC, sprite.Sprite):
 class Entity(ABC):
     """
     Encapsulates both potential enemies and players
+    Players have health and ability cards
+    Enemies have RNG attacks (that remain beatable)
     """
 
-    class Card(ABC):
-        """
-        Different cards (abilities) are subclassed from here
-        Behaviour of different types should be defined purely within subclasses
-        This is only utilised for player interaction
-        """
+    class Player(ABC):
+        class Card(ABC):
+            """
+            Different cards (abilities) are subclassed from here
+            Behaviour of different types should be defined purely within subclasses
+            This is only utilised for player interaction
+            """
+
+            @property
+            @abstractmethod
+            def name(self) -> str:
+                pass
+
+            @property
+            @abstractmethod
+            def description(self) -> str:
+                pass
+
+            @property
+            @abstractmethod
+            def type(self) -> str:
+                pass
 
         @property
         @abstractmethod
-        def name(self) -> str:
+        def cards(self) -> Dict[str, Card]:
             pass
 
-        @property
-        @abstractmethod
-        def description(self) -> str:
-            pass
-
-        @property
-        @abstractmethod
-        def type(self) -> str:
-            pass
+    # TODO: add actual abstractions for this
+    class Enemy(ABC):
+        pass
 
     @property
     @abstractmethod
@@ -107,9 +119,8 @@ class Entity(ABC):
 
     @property
     @abstractmethod
-    def cards(self) -> Dict[str, Card]:
+    def sprite(self) -> Object:
         pass
-
 
 class FS_Daemon:
     """
@@ -121,7 +132,7 @@ class FS_Daemon:
 
     def __init__(self) -> None:
         # HACK: Pray that this works. This is under the assumption that the project structure remains identical.
-        # Regexing here allows for easy expandability w/o hardcoded paths (minus the root)
+        # Regexing here allows for easy expandability w/o hardcoded paths (minus the root path)
         self.root = Path(Path.cwd(), "..")
 
     # PERF: Calling this every time we want to load something is expensive
