@@ -171,7 +171,7 @@ class Helpers:
     @staticmethod
     def text_add_helper(
         target: Dict[str, Tuple[Surface, Tuple[int, int]]],
-        dimensions: Tuple[int, int],
+        screen_dimensions: Tuple[int, int],
         sequences: Tuple[Tuple[Surface, str, Tuple[int, int]], ...],
     ) -> None:
         """
@@ -182,7 +182,7 @@ class Helpers:
         # NOTE: These are only called once and not updated dynamically
         for i in sequences:
             pos = (
-                int(i[2][0] / 100 * dimensions[0] - i[0].get_width() / 2),
-                int(i[2][1] / 100 * dimensions[1] - i[0].get_height() / 2),
+                int(i[2][0] / 100 * screen_dimensions[0] - i[0].get_width() / 2),
+                int(i[2][1] / 100 * screen_dimensions[1] - i[0].get_height() / 2),
             )
             target[i[1]] = (i[0], pos)
