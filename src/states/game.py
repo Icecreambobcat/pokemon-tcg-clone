@@ -20,8 +20,12 @@ class Game(GameState):
         self._conf = config
         self._scr = screen
 
+        if self.config.config["debug"]:
+            print("Loaded private game vars")
+
         # sect: images
         # TODO: find other assets for "game" gamestate
+
         self.bg = transform.scale(
             self.fs_daemon.images["gamebg"],
             (int(self.config.config["width"]), int(self.config.config["height"])),
@@ -39,6 +43,9 @@ class Game(GameState):
         self.font2 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][1]
         self.font1 = self.fs_daemon.fonts["JetBrainsMonoNerdFont-regular"][0]
 
+        if self.config.config["debug"]:
+            print("Loaded fonts and bg (menu)")
+
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
 
@@ -50,6 +57,8 @@ class Game(GameState):
             (),
         )
 
+        if self.config.config["debug"]:
+            print("Loaded text & positions (game)")
         # TODO: add some for [match name] in fsd[type]... loop to load everything in 1 go
 
         # sect: init player
@@ -59,9 +68,17 @@ class Game(GameState):
 
         # self.player = self.Player()
         # self.enemy = self.Enemy()
+        if self.config.config["debug"]:
+            print("Initialising game object")
+            print(self.__dict__)
 
     def loop(self) -> bool:
         self.initialise_gamestate()
+
+        if self.config.config["debug"]:
+            print("Entering loop")
+            print(self.__dict__)
+
         gamestate = True
         while gamestate:
             self.render()
@@ -83,13 +100,22 @@ class Game(GameState):
         # TODO: Implement logic control here by checking self.status (dict)
         display.flip()
 
+        if self.config.config["debug"]:
+            print("Rendering game")
+
     def process_behaviour(self) -> None:
         # TODO: Handle player input here + call class logic
-        pass
+        for event in pg.event.get():
+            if self.config.config["debug"]:
+                print(event)
+            # continue to handle...
 
     def initialise_gamestate(self) -> None:
         # TODO: Reset player health & groups
         pass
+        if self.config.config["debug"]:
+            print("Initialising gamestate")
+            print(self.__dict__)
 
     @property
     def clock(self) -> time.Clock:
