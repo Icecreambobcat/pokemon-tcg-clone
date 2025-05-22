@@ -1,5 +1,6 @@
 from __future__ import annotations, with_statement
 from typing import Dict, List, Tuple
+from random import randint, uniform
 import pygame as pg
 from pygame import Surface, display, sprite, time, transform
 
@@ -77,7 +78,7 @@ class Game(GameState):
         )
         self.enemy = self.Enemy(
             transform.scale(self.fs_daemon.images["enemytex"], (150, 150)),
-            500,
+            1000,
             "placeholder",
         )
 
@@ -107,6 +108,8 @@ class Game(GameState):
         # sect: other control functions
         self.status: str
         self.elements: Dict[str, SpriteObject] = {}
+
+        self.switchevent = pg.event.Event(pg.event.custom_type())
 
         if self.config.config["debug"]:
             print("Initialising game object")
@@ -158,12 +161,16 @@ class Game(GameState):
         # only render buttons and allow interactions if & only if status matches
         match self.status:
             case "playerturn":
+                # render buttons
                 pass
             case "enemyturn":
+                # remove buttons, attack message
                 pass
             case "animating":
+                # update health bar
                 pass
             case "gameover":
+                # obviously
                 pass
         display.flip()
 
@@ -177,11 +184,25 @@ class Game(GameState):
             if self.config.config["debug"]:
                 print(event)
                 print(time.get_ticks())
+
             if event.type == pg.QUIT:
                 self._quit = True
+
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
                     self._quit = True
+
+            elif event.type == self.switchevent:
+                match self.status:
+                    case "playerturn":
+                        self.player.mana = self.player.mana + randint(2, 5)
+                    case "enemyturn":
+                        self.enemy.mana = self.enemy.mana + randint(2, 5)
+                    case "animating":
+                        pass
+                    case "gameover":
+                        pass
+
             # continue to handle...
 
     def initialise_gamestate(self) -> None:
@@ -189,7 +210,30 @@ class Game(GameState):
         self._restart = False
         self.status = "playerturn"
         self.player.health = self.player.maxhp
+        self.player.mana = self.player.maxmana
         self.enemy.health = self.enemy.maxhp
+        self.enemy.mana = self.enemy.maxmana
+
+        self.player.sprite.position = (
+            int(
+                int(self.config.config["width"]) * 0.275
+                - self.player.sprite.tex.get_width() / 2
+            ),
+            int(
+                int(self.config.config["height"]) * 0.7
+                - self.player.sprite.tex.get_height() / 2
+            ),
+        )
+        self.enemy.sprite.position = (
+            int(
+                int(self.config.config["width"]) * 0.7
+                - self.enemy.sprite.tex.get_width() / 2
+            ),
+            int(
+                int(self.config.config["height"]) * 0.265
+                - self.enemy.sprite.tex.get_height() / 2
+            ),
+        )
 
         if self.config.config["debug"]:
             print("Initialising gamestate")
@@ -219,6 +263,7 @@ class Game(GameState):
         _hp: int
         _sp: PlayerSprite
         _cards: List[Entity.Player.Card]
+        _mana: int
 
         class PlayerSprite(SpriteObject):
             _pos: Tuple[int, int]
@@ -241,14 +286,106 @@ class Game(GameState):
                 return self._tex
 
         class Card(Entity.Player.Card):
-            # TODO: implement the card framework and a few basic cards
-            pass
+            def __init__(
+                self,
+                name: str,
+                desc: str,
+                type: str,
+                cost: int,
+                damage: int = 0,
+                crate: float = 0,
+                heal: int = 0,
+                special: bool = False,
+            ) -> None:
+                self._name = name
+                self._desc = desc
+                self._type = type
+                self._cost = cost
+                self.damage = damage
+                self.crate = crate
+                self.heal = heal
+                self.special = special
+
+            @property
+            def name(self) -> str:
+                return self._name
+
+            @property
+            def desc(self) -> str:
+                return self._desc
+
+            @property
+            def type(self) -> str:
+                return self._type
+
+            @property
+            def cost(self) -> int:
+                return self._cost
+
+            def use(self, mana: int, gcrit: bool) -> Dict[str, int | bool]:
+                heal: int = 0
+                damage: int = 0
+                special: int = 0
+
+                if self.cost > mana:
+                    return {"success": False}
+
+                if self.special:
+                    match self.type:
+                        case "drawcard":
+                            special = 1
+
+                        case "guaranteecrit":
+                            heal = self.heal
+                            special = 2
+
+                        case "finisher":
+                            special = 3
+                            if uniform(0, 1) < self.crate or gcrit:
+                                heal = self.heal * 2
+                                damage = self.damage * 2
+                            else:
+                                heal = self.heal
+                                damage = self.damage
+
+                    return {
+                        "success": True,
+                        "specialeffect": special,
+                        "selfmanamod": self.cost,
+                        "selfhpmod": heal,
+                        "enemyhpmod": damage,
+                    }
+
+                match self.type:
+                    case "damage":
+                        if uniform(0, 1) < self.crate or gcrit:
+                            damage = self.damage * 2
+                            heal = int(self.heal * 1.5)
+
+                    case "amplify":
+                        if uniform(0, 1) < self.crate or gcrit:
+                            damage = int(self.damage * 1.5)
+                            heal = self.heal * 2
+
+                    case "restore":
+                        if uniform(0, 1) < self.crate or gcrit:
+                            heal = self.heal * 3
+
+                return {
+                    "success": True,
+                    "specialeffect": special,
+                    "selfhpmod": heal,
+                    "enemyhpmod": damage,
+                    "selfmanamod": self.cost,
+                }
 
         def __init__(self, tex: Surface) -> None:
             self._sp = self.PlayerSprite(tex)
-            self._hp = 500
+            self._hp = 1000
             self.maxhp = self._hp
-            # Lets just arbitrarily put 500... will see how this goes
+            self._mana = 20
+            self.maxmana = self._mana
+            # Lets just arbitrarily put 1000... will see how this goes
             # Set the max hp to whatever the character is initialised with
             # I'm too lazy to do otherwise
 
@@ -275,10 +412,25 @@ class Game(GameState):
         def cards(self) -> List[Entity.Player.Card]:
             return self._cards
 
+        @property
+        def mana(self) -> int:
+            return self._mana
+
+        @mana.setter
+        def mana(self, mana: int) -> None:
+            match mana:
+                case num if num < 0:
+                    self._mana = 0
+                case num if num > self.maxmana:
+                    self._mana = self.maxmana
+                case _:
+                    self._mana = mana
+
     class Enemy(Entity.Enemy):
         _hp: int
         _sp: EnemySprite
         _attacks: List[Entity.Enemy.Attack]
+        _mana: int
 
         class EnemySprite(SpriteObject):
             _pos: Tuple[int, int]
@@ -301,13 +453,29 @@ class Game(GameState):
                 return self._tex
 
         class EnemyAttack(Entity.Enemy.Attack):
-            # TODO: add a few basic attacks for enemies too
-            pass
+            def __init__(self, name: str, cost: int, dmg: int) -> None:
+                self._name = name
+                self._dmg = dmg
+                self._cost = cost
+
+            @property
+            def name(self) -> str:
+                return self._name
+
+            @property
+            def cost(self) -> int:
+                return self._cost
+
+            @property
+            def damage(self) -> int:
+                return self._dmg
 
         def __init__(self, tex: Surface, hp: int, name: str) -> None:
             self._sp = self.EnemySprite(tex)
             self._hp = hp
             self._name = name
+            self._mana = 20
+            self.maxmana = self._mana
             # self._attacks = []
             self.maxhp = self._hp
             # let's just do this again
@@ -329,6 +497,20 @@ class Game(GameState):
                     self.hp = self.maxhp
                 case _:
                     self._hp = hp
+
+        @property
+        def mana(self) -> int:
+            return self._mana
+
+        @mana.setter
+        def mana(self, mana: int) -> None:
+            match mana:
+                case num if num < 0:
+                    self._mana = 0
+                case num if num > self.maxmana:
+                    self._mana = self.maxmana
+                case _:
+                    self._mana = mana
 
         @property
         def sprite(self) -> EnemySprite:

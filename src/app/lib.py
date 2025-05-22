@@ -109,7 +109,7 @@ class Entity(ABC):
                 pass
 
             @abstractmethod
-            def use(self) -> None:
+            def use(self, mana, gcrit) -> Dict[str, int | bool]:
                 pass
 
         @property
@@ -152,6 +152,11 @@ class Entity(ABC):
     @property
     @abstractmethod
     def sprite(self) -> SpriteObject:
+        pass
+
+    @property
+    @abstractmethod
+    def mana(self) -> int:
         pass
 
 
