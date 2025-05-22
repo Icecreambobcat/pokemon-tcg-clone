@@ -59,6 +59,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Loaded text & positions (game)")
+
         # TODO: add some for [match name] in fsd[type]... loop to load everything in 1 go
 
         # sect: init player
@@ -66,8 +67,12 @@ class Game(GameState):
         # Implement textures
         # implement naming
 
-        # self.player = self.Player()
-        # self.enemy = self.Enemy()
+        self.player = self.Player(self.fs_daemon.images["playertex"])
+        self.enemy = self.Enemy(self.fs_daemon.images["enemytex"], 500, "placeholder")
+
+        # sect: other control functions
+        self.status: Dict[str, str]
+
         if self.config.config["debug"]:
             print("Initialising game object")
             print(self.__dict__)
@@ -112,7 +117,11 @@ class Game(GameState):
 
     def initialise_gamestate(self) -> None:
         # TODO: Reset player health & groups
-        pass
+        self.status = {
+            "state": "intro",
+            "turn": "player",
+        }
+
         if self.config.config["debug"]:
             print("Initialising gamestate")
             print(self.__dict__)
@@ -298,4 +307,3 @@ class Game(GameState):
         @size.setter
         def size(self, size: Tuple[int, int]) -> None:
             self._size = size
-
