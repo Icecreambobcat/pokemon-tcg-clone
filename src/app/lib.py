@@ -175,7 +175,6 @@ class FS_Daemon:
     def __init__(self) -> None:
         # HACK: Pray that this works. This is under the assumption that the project structure remains identical.
         # Regexing here allows for easy expandability w/o hardcoded paths (minus the root path)
-        self.root = Path(Path.cwd(), "..")
         self.root = Path(__file__, "../../../").resolve()
 
     # PERF: Calling this every time we want to load something is expensive
@@ -219,13 +218,16 @@ class Helpers:
     ) -> None:
         """
         Input a sequence of (<font_surface>, "name", (x, y)) tuples.
-        x and y are offset the center of the text rect by screen size percent from (0, 0)
+        x and y offset the center of the text rect by screen size decimal from 0 to 1
         """
 
         # NOTE: These are only called once and not updated dynamically
         for i in sequences:
-            pos = (
-                int(i[2][0] / 100 * screen_dimensions[0] - i[0].get_width() / 2),
-                int(i[2][1] / 100 * screen_dimensions[1] - i[0].get_height() / 2),
-            )
-            target[i[1]] = (i[0], pos)
+            if i != None:
+                pos = (
+                    int(i[2][0] / 100 * screen_dimensions[0] - i[0].get_width() / 2),
+                    int(i[2][1] / 100 * screen_dimensions[1] - i[0].get_height() / 2),
+                )
+                target[i[1]] = (i[0], pos)
+            else:
+                continue
