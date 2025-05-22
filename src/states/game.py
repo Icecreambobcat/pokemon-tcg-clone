@@ -22,6 +22,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Loaded private game vars")
+            print(time.get_ticks())
 
         # sect: images
         # TODO: find other assets for "game" gamestate
@@ -45,6 +46,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Loaded fonts and bg (game)")
+            print(time.get_ticks())
 
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
@@ -59,6 +61,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Loaded text & positions (game)")
+            print(time.get_ticks())
 
         # TODO: add some for [match name] in fsd[type]... loop to load everything in 1 go
 
@@ -83,6 +86,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Initialising game object")
+            print(time.get_ticks())
             print(self.__dict__)
 
     def loop(self) -> bool:
@@ -90,6 +94,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Entering loop")
+            print(time.get_ticks())
             print(self.__dict__)
 
         gamestate = True
@@ -97,6 +102,14 @@ class Game(GameState):
             self.render()
             self.process_behaviour()
             self.clock.tick(int(self.config.config["fps"]))
+            if self._quit:
+                break
+            elif self._restart:
+                break
+        else:
+            return True
+        if self._quit:
+            App.quit("Quit from game loop")
         return False
 
     def render(self) -> None:
@@ -130,12 +143,19 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Rendering game")
+            print(time.get_ticks())
 
     def process_behaviour(self) -> None:
         # TODO: Handle player input here + call class logic
         for event in pg.event.get():
             if self.config.config["debug"]:
                 print(event)
+                print(time.get_ticks())
+            if event.type == pg.QUIT:
+                self._quit = True
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    self._quit = True
             # continue to handle...
 
     def initialise_gamestate(self) -> None:
@@ -144,6 +164,7 @@ class Game(GameState):
 
         if self.config.config["debug"]:
             print("Initialising gamestate")
+            print(time.get_ticks())
             print(self.__dict__)
 
     @property

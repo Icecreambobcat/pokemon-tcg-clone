@@ -21,6 +21,7 @@ class Menu(GameState):
 
         if self.config.config["debug"]:
             print("Loaded private menu vars")
+            print(time.get_ticks())
 
         # sect: images
         self.bg = transform.scale(
@@ -42,6 +43,8 @@ class Menu(GameState):
 
         if self.config.config["debug"]:
             print("Loaded fonts and bg (menu)")
+            print(time.get_ticks())
+
 
         # Because I'm lazy im gonna load fonts like this
         self.texts: Dict[str, Tuple[Surface, Tuple[int, int]]] = {}
@@ -72,11 +75,13 @@ class Menu(GameState):
         if self.config.config["debug"]:
             print("Loaded text & positions (menu)")
             print("Initialising menu")
+            print(time.get_ticks())
             print(self.__dict__)
 
     def loop(self) -> bool:
         if self.config.config["debug"]:
             print("Entering loop")
+            print(time.get_ticks())
         gamestate = True
         _quit = False
         while gamestate:
@@ -86,6 +91,7 @@ class Menu(GameState):
             for event in pg.event.get():
                 if self.config.config["debug"]:
                     print(event)
+                    print(time.get_ticks())
                 if event.type == pg.QUIT:
                     _quit = True
                     gamestate = False
@@ -116,6 +122,7 @@ class Menu(GameState):
 
         if self.config.config["debug"]:
             print("Rendering menu")
+            print(time.get_ticks())
 
     @property
     def clock(self) -> time.Clock:

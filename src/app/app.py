@@ -34,6 +34,7 @@ class App:
         self.config = Config(args)
         if self.config.config["debug"]:
             print(self.config.config)
+            print(time.get_ticks())
 
         pg.init()
         self.screen = display.set_mode(
@@ -52,6 +53,7 @@ class App:
 
         if self.config.config["debug"]:
             print("Initialized app")
+            print(time.get_ticks())
             print(self.__dict__)
         # blah other init stuff
 
