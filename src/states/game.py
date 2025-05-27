@@ -10,7 +10,6 @@ from app.lib import Entity, FS_Daemon, GameState, SpriteObject
 
 
 class Game(GameState):
-    # TODO: Implement the whole thing!!!!!
     def __init__(
         self, clock: time.Clock, fsd: FS_Daemon, config: Config, screen: Surface
     ) -> None:
