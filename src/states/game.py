@@ -1,9 +1,8 @@
 from __future__ import annotations, with_statement
 from typing import Dict, List, Tuple
-import asyncio
 from random import choice, randint, uniform, choices
 import pygame as pg
-from pygame import Surface, display, draw, sprite, time, transform
+from pygame import Surface, display, draw, time, transform
 
 from app.app import App
 from app.conf import Config
